@@ -25,8 +25,8 @@ import (
 	"time"
 
 	"github.com/caddyserver/certmagic"
-	"github.com/mholt/acmez"
-	"github.com/mholt/acmez/acme"
+	"github.com/mholt/acmez/v3"
+	"github.com/mholt/acmez/v3/acme"
 	"go.uber.org/zap"
 
 	"github.com/caddyserver/caddy/v2"

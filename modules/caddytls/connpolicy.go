@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mholt/acmez"
+	"github.com/mholt/acmez/v3"
 	"go.uber.org/zap"
 
 	"github.com/caddyserver/caddy/v2"
@@ -305,6 +305,20 @@ func (p *ConnectionPolicy) buildStandardTLSConfig(ctx caddy.Context) error {
 		if err != nil {
 			return fmt.Errorf("configuring TLS client authentication: %v", err)
 		}
+
+		// Prevent privilege escalation in case multiple vhosts are configured for
+		// this TLS server; we could potentially figure out if that's the case, but
+		// that might be complex to get right every time. Actually, two proper
+		// solutions could leave tickets enabled, but I am not sure how to do them
+		// properly without significant time investment; there may be new Go
+		// APIs that alloaw this (Wrap/UnwrapSession?) but I do not know how to use
+		// them at this time. TODO: one of these is a possible future enhancement:
+		// A) Prevent resumptions across server identities (certificates): binding the ticket to the
+		// certificate we would serve in a full handshake, or even bind a ticket to the exact SNI
+		// it was issued under (though there are proposals for session resumption across hostnames).
+		// B) Prevent resumptions falsely authenticating a client: include the realm in the ticket,
+		// so that it can be validated upon resumption.
+		cfg.SessionTicketsDisabled = true
 	}
 
 	if p.InsecureSecretsLog != "" {
